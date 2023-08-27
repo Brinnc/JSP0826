@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+	">
+
+	<!-- 어플리케이션에서 사용할 모든 객체는 xml에 태그로 명시 -->
+	<bean class="food.FriPan" id="friPan" />
+	<bean class="food.Induction" id="induction" />
+
+	<bean class="food.Cook" id="cook">
+		<!-- weaving -->
+		<constructor-arg ref="induction" /> 
+	</bean>
+	
+	<!-- 학생에게 주입할 징글벨을 등록 -->
+	<bean class="school.JingleBell" id="jingleBell"></bean>
+	
+	<!-- 학생을 등록 -->
+	<bean class="school.Student" id="student">
+		<!-- 엮기(weaving)  -->
+		<property name="bell" ref="jingleBell"></property>
+	</bean>
+	
+	<!-- 학생의 모든 상황마다 적용될 벨을, 하나의 관점으로 지정하여 적용 -->
+	<aop:config>
+		<aop:aspect ref="jingleBell">
+			<!-- 학생 클래스의 모든 메서드에, 즉 지점을 명시(AspectJ의 표현식을 따름) -->
+			<!-- 공통 코드가 적용될 수 있는 후보지점들을 가리켜 joinPoint라고 하며, 
+			이 후보들 중 공통코드의 적용이 선택된 지점을 PointCut
+			패키지명.클래스명.메서드명-->
+			<aop:pointcut expression="execution(public * school.Student.*(..))" id="bellPointcut"/>
+			<aop:before method="sound" pointcut-ref="bellPointcut"/>
+		</aop:aspect>
+	
+	</aop:config>
+	
+</beans>
